@@ -1,0 +1,7 @@
+{
+    "python.defaultInterpreterPath": "/home/seppehousen/.cache/pypoetry/virtualenvs/mcts-snake-doZtE2HK-py3.10/bin/python",
+    "terminal.integrated.env.windows": {
+      "PYTHONPATH": "${workspaceFolder}/src;${workspaceFolder}/tests"
+    },
+    "python.envFile": "${workspaceFolder}/.env"
+  }
