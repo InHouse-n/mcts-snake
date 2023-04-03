@@ -2,9 +2,9 @@
 
 <!-- PROJECT LOGO -->
 
-<h1>Project name goes here</h1>
+<h1>Monte Carle Tree search for Snek</h1>
 
-<p>Project description goes her</p>
+<p>A reinforcement learning agent that utilized deep learning and monte carlo tree search to play snake</p>
 <nav>
 </nav>
 

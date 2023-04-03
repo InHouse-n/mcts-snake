@@ -133,13 +133,13 @@ class SnakeWorldEnv(gym.Env):
         # We will sample the target's location randomly until it does not coincide with the agent's location
         self._target_location = Point(
             self.np_random.integers(0, self.size, dtype=int),
-            self.np_random.integers(0, self.size, dtype=int)
+            self.np_random.integers(0, self.size, dtype=int),
         )
         while self._target_location in self._snake_location:
             self._target_location = Point(
-            self.np_random.integers(0, self.size, dtype=int),
-            self.np_random.integers(0, self.size, dtype=int)
-        )
+                self.np_random.integers(0, self.size, dtype=int),
+                self.np_random.integers(0, self.size, dtype=int),
+            )
 
     def render(self):
         if self.render_mode == "rgb_array":
@@ -149,9 +149,7 @@ class SnakeWorldEnv(gym.Env):
         if self.window is None and self.render_mode == "human":
             pygame.init()
             pygame.display.init()
-            self.window = pygame.display.set_mode(
-                (self.window_size, self.window_size)
-            )
+            self.window = pygame.display.set_mode((self.window_size, self.window_size))
         if self.clock is None and self.render_mode == "human":
             self.clock = pygame.time.Clock()
 
@@ -200,9 +198,7 @@ class SnakeWorldEnv(gym.Env):
             # The following line copies our drawings from `canvas` to the visible window
             # add score
             font = pygame.font.Font("src/mcts_snake/arial.ttf", 25)
-            text = font.render(
-            "Score: " + str(self.score), True, (255, 255, 255)
-            )
+            text = font.render("Score: " + str(self.score), True, (255, 255, 255))
             self.window.blit(canvas, canvas.get_rect())
             self.window.blit(text, [0, 0])
             pygame.event.pump()
@@ -216,7 +212,7 @@ class SnakeWorldEnv(gym.Env):
                 np.array(pygame.surfarray.pixels3d(canvas)), axes=(1, 0, 2)
             )
 
-        def close(self):
-            if self.window is not None:
-                pygame.display.quit()
-                pygame.quit()
+    def close(self):
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
