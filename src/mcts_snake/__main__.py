@@ -24,5 +24,20 @@ def main():
     env.close()
 
 
+
+
+
+    ##TODO
+
+    ## put the pieces togther and see if it makes sense
+
+    # set up environment and model
+    # predict a step -> run the mcts to get the best move
+    # take this step
+    # get returns from this step
+    # train on batch?
+    # keep losses?
+
+
 if __name__ == "__main__":
     main()

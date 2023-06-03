@@ -54,15 +54,9 @@ class SnakeWorldEnv(gym.Env):
         self.clock = None
 
     def _get_obs(self):
-        return {"snake": self._snake_location, "target": self._target_location}
+        return {"snake": self._snake_location, "target": self._target_location, "score": self.score}
 
-    def _get_info(self):
-        return {
-            "distance": np.linalg.norm(
-                np.array(self._head) - np.array(self._target_location), ord=1
-            ),
-            "score": self.score,
-        }
+    
 
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
@@ -73,18 +67,18 @@ class SnakeWorldEnv(gym.Env):
         self._snake_location = [
             self._head,
             Point(self._head.x - 1, self._head.y),
-            Point(self._head.x - (2 * 1), self._head.y),
+            Point(self._head.x - 2, self._head.y),
         ]
 
         self._place_food()
         self.score = 0
         observation = self._get_obs()
-        info = self._get_info()
+        
 
         if self.render_mode == "human":
             self._render_frame()
 
-        return observation, info
+        return observation
 
     def step(self, action):
         # Map the action (element of {0,1,2,3}) to the direction we walk in
@@ -110,12 +104,12 @@ class SnakeWorldEnv(gym.Env):
             self._snake_location.pop()
 
         observation = self._get_obs()
-        info = self._get_info()
+        
 
         if self.render_mode == "human":
             self._render_frame()
 
-        return observation, reward, done, info
+        return observation, reward, done
 
     def _is_collision(self, pt=None):
         collision = False
@@ -216,3 +210,104 @@ class SnakeWorldEnv(gym.Env):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
+    
+    
+    def next_state(self, state, action):
+        """
+        Given the current state of the environment and the action that is
+        performed in that state, returns the resulting state.
+        :param state: Current state of the environment.
+        :param action: Action that is performed in that state.
+        :return: Resulting state.
+        """
+        # Map the action (element of {0,1,2,3}) to the direction we walk in
+        direction = self._action_to_direction[action]
+
+
+        # get snake and food location
+        snake = state['snake']
+        food = state['target']
+        score = state['score']
+
+        #move the snake
+        snake.insert(0, snake[0].x + direction[0], snake[0].y + direction[1])
+
+        # if snake eat the food place new one
+        if snake[0] == food:
+            score =+ 1
+            while food in snake:
+                food = Point(self.np_random.integers(0, self.size, dtype=int),
+                self.np_random.integers(0, self.size, dtype=int),)
+        
+        return {"snake": snake, "target": food, "score": score}
+    
+    def is_done_state(self,state):
+        """
+        Given the state and the index of the current step, returns whether
+        that state is the end of an episode, i.e. a done state.
+        :param state: Current state.
+        :param step_idx: Index of the step at which the state occurred.
+        :return: True, if the step is a done state, False otherwise.
+        """
+        collision = False
+        
+        
+        # get snake location
+        snake = state['snake']
+        snake_head = snake[0]
+        
+        # check if it hit anything
+        
+        # hits boundary
+        if snake_head.x > self.size - 1 or snake_head.x < 0 or snake_head.y > self.size - 1 or snake_head.y < 0:
+            collision = True
+        # hits itself
+        if snake_head in snake[1:]:
+            collision = True
+        return collision
+    
+    
+    def initial_state(self):
+        """
+        Returns the initial state of the environment.
+        """
+        snake_head = Point(self.size / 2, self.size / 2)
+        snake = [snake_head,
+                 Point(snake_head.x - 1, snake_head.y),
+                 Point(snake_head.x - 2, snake_head.y),
+                 ]
+
+        food = Point(self.np_random.integers(0, self.size, dtype=int),
+                self.np_random.integers(0, self.size, dtype=int),)
+        while food in snake:
+                food = Point(self.np_random.integers(0, self.size, dtype=int),
+                self.np_random.integers(0, self.size, dtype=int),)
+        score = 0
+
+        return {"snake": snake, "target": food, "score": score}
+
+    @staticmethod
+    def get_obs_for_states(states):
+        """
+        Some environments distinguish states and observations. An observation
+        can be a subset (e.g. in Poker, state is all cards in game, observation
+        is cards on player's hand) or superset of the state (i.e. observations
+        add additional information).
+        :param states: List of states.
+        :return: Numpy array of observations.
+        """
+        return np.array(states)
+
+    
+    @staticmethod
+    def get_return(state):
+        """
+        Returns the return that the agent has achieved so far when he is in
+        a given state after a given number of steps.
+        :param state: Current state that the agent is in.
+        :param step_idx: Index of the step at which the agent reached that
+        state.
+        :return: Return the agent has achieved so far.
+        """
+        return state['score']
+        
